@@ -1,21 +1,58 @@
 """
-Centralized configuration for ML pipeline
+Centralized configuration for ML pipeline.
+
+All constants, file paths, hyperparameters, and column definitions are
+defined here. Changes to configuration propagate automatically to all
+modules that import from this file.
+
+This eliminates magic numbers and hardcoded strings scattered across
+the codebase, making the system more maintainable and reproducible.
 """
 from typing import List
 
-class Config:
-    # File paths
-    DATA_PATH: str = 'data/raw/ride_data.csv'
-    MODEL_PATH: str = 'models/model.pkl'
-    PIPELINE_PATH: str = 'models/pipeline.pkl'
-    REPORT_PATH: str = 'reports/metrics.json'
+# ============================================================================
+# FILE PATHS
+# ============================================================================
+DATA_PATH: str = 'data/raw/ride_data.csv'
+MODEL_PATH: str = 'models/model.pkl'
+PIPELINE_PATH: str = 'models/preprocessing_pipeline.pkl'
+REPORT_PATH: str = 'reports/metrics.json'
+LOG_PATH: str = 'logs/pipeline.log'
 
-    # Data columns
-    TARGET_COLUMN: str = 'ride_completed'
-    CATEGORICAL_COLS: List[str] = ['pickup_location', 'dropoff_location', 'hour_of_day', 'day_of_week']
-    NUMERICAL_COLS: List[str] = ['trip_distance', 'estimated_time']
+# ============================================================================
+# DATA CONFIGURATION
+# ============================================================================
+TARGET_COLUMN: str = 'ride_completed'
 
-    # ML params
-    TEST_SIZE: float = 0.2
-    RANDOM_STATE: int = 42
-    N_ESTIMATORS: int = 100
+CATEGORICAL_COLS: List[str] = [
+    'pickup_location',
+    'dropoff_location',
+    'hour_of_day',
+    'day_of_week'
+]
+
+NUMERICAL_COLS: List[str] = [
+    'trip_distance',
+    'estimated_time'
+]
+
+# ============================================================================
+# MACHINE LEARNING HYPERPARAMETERS
+# ============================================================================
+# Reproducibility seed (used across all modules)
+RANDOM_STATE: int = 42
+
+# Train/test split
+TEST_SIZE: float = 0.2
+
+# Random Forest hyperparameters
+N_ESTIMATORS: int = 100
+MAX_DEPTH: int = 10
+MIN_SAMPLES_SPLIT: int = 5
+MIN_SAMPLES_LEAF: int = 2
+
+# ============================================================================
+# LOGGING CONFIGURATION
+# ============================================================================
+LOG_LEVEL: str = 'INFO'
+LOG_FORMAT: str = '%(asctime)s | %(levelname)s | %(name)s | %(message)s'
