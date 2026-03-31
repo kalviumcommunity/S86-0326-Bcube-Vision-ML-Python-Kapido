@@ -1,0 +1,46 @@
+# Python environment
+venv/
+env/
+.venv
+*.pyc
+__pycache__/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Data (exclude raw data and processed data)
+data/raw/*.csv
+data/raw/*.xlsx
+data/processed/*.csv
+*.parquet
+
+# Models and artifacts
+models/*.pkl
+models/*.joblib
+reports/*.json
+reports/*.html
+
+# Logs
+logs/*.log
+*.log
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS
+.DS_Store
+Thumbs.db
