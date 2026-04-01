@@ -15,7 +15,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 
 from src.data_preprocessing import load_data, clean_data, split_data
-from src.feature_engineering import build_preprocessing_pipeline
+from src.preprocessing import build_preprocessing_pipeline
 from src.train import train_model
 from src.evaluate import evaluate_model
 
