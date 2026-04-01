@@ -4,6 +4,11 @@ Model training module for ride-sharing demand/supply prediction.
 This module handles the training stage of the ML pipeline: loading data,
 splitting, preprocessing, and fitting a Random Forest classifier.
 
+This is a BINARY CLASSIFICATION problem:
+- Target: ride_completed (0 = not completed, 1 = completed)
+- Algorithm: Random Forest Classifier (handles non-linear relationships)
+- Output: Probability of completion + class prediction
+
 Key principle: This module ONLY trains. It does not evaluate (that's evaluate.py),
 and does not save (that's persistence.py). Each responsibility is separate
 and encapsulated.

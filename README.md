@@ -13,6 +13,30 @@ Key principles:
 - **Reusability**: Preprocessing logic shared across training and prediction
 - **No Data Leakage**: Training and prediction pipelines are completely isolated
 
+## Problem Type Identification
+
+This project solves a **binary classification** problem in supervised learning.
+
+**What are we predicting?**
+- Target variable: `ride_completed` (1 = ride completed successfully, 0 = ride not completed)
+- Output type: Discrete category (completed vs not completed)
+- Number of classes: 2 (binary classification)
+
+**Business context:**
+- Positive class (1): Ride completed - successful match between rider and driver
+- Negative class (0): Ride not completed - failed to find driver or other issues
+- Success metric: High recall (catch as many failed rides as possible) with acceptable precision
+
+**Why classification, not regression?**
+- The outcome is categorical: a ride is either completed or not
+- There is no meaningful "degree" of completion - it's binary
+- Regression would be inappropriate as it might predict values like 0.7 (nonsensical)
+
+**Evaluation approach:**
+- Primary metrics: Precision, Recall, F1-Score, ROC-AUC
+- Accuracy alone is misleading due to potential class imbalance
+- Focus on recall to minimize missed failed rides (false negatives are costly)
+
 ## Directory Structure
 
 ```
