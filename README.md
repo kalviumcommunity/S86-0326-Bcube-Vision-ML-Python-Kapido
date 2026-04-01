@@ -49,6 +49,11 @@ S86-0326-Bcube-Vision-ML-Python-Kapido/
 └── .gitignore                     # Git ignore patterns
 ```
 
+## Getting Started
+
+1. Install dependencies: `pip install -r requirements.txt`
+2. Run the pipeline: `python src/main.py`
+
 ## Module Responsibilities
 
 ### `config.py`
