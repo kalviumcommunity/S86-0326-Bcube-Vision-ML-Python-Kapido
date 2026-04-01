@@ -147,6 +147,8 @@ Uses pytest with fixtures for mock data. Tests:
 
 ## Installation & Setup
 
+Python required: 3.11.9
+
 ### 1. Clone Repository
 ```bash
 git clone <repository_url>
@@ -156,12 +158,29 @@ cd S86-0326-Bcube-Vision-ML-Python-Kapido
 ### 2. Create Virtual Environment
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+Activate environment:
+
+- Windows (PowerShell/CMD):
+```bash
+venv\Scripts\activate
+```
+
+- macOS/Linux:
+```bash
+source venv/bin/activate
 ```
 
 ### 3. Install Dependencies
 ```bash
 pip install -r requirements.txt
+```
+
+Optional exact lockfile install (includes transitive dependencies):
+
+```bash
+pip install -r requirements-frozen.txt
 ```
 
 ### 4. Prepare Data
@@ -173,6 +192,30 @@ File must contain columns:
 - Target: `ride_completed` (binary: 0 or 1)
 
 Or update these in `src/config.py` to match your data.
+
+## Dependency Management and Reproducibility
+
+This project uses strict version pinning in `requirements.txt` with the `==` operator for reproducible ML behavior across machines.
+
+Why this matters:
+- Prevents silent behavior changes in preprocessing and model defaults
+- Keeps model serialization/loading compatible across environments
+- Reduces metric drift caused by dependency upgrades
+
+Recommended workflow:
+1. Create and activate a virtual environment
+2. Install dependencies from `requirements.txt`
+3. Run the pipeline and tests from a clean environment
+4. If you add a new library, pin it in `requirements.txt` immediately
+
+Reproducibility check before submission:
+1. Delete your local virtual environment
+2. Recreate it from scratch
+3. Install with `pip install -r requirements.txt`
+4. Run full pipeline: `python -m src.main`
+5. Run tests: `pytest src/test_pipeline.py -v`
+
+If all steps pass on a clean environment, your dependency management is correct.
 
 ## Usage
 
