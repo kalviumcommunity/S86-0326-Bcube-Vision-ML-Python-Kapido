@@ -9,7 +9,7 @@ concerns, reproducibility, and maintainability at its foundation.
 Key modules:
 - config: Centralized configuration
 - data_preprocessing: Data loading and cleaning
-- feature_engineering: Feature transformation pipelines
+- preprocessing: Feature transformation pipelines
 - train: Model training
 - evaluate: Model evaluation
 - predict: Prediction on new data

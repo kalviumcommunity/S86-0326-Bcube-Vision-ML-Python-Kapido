@@ -8,7 +8,7 @@ and splitting data. Functions here:
 - Split data into train and test sets with reproducible randomization
 
 Note: This module ONLY loads and prepares data. Feature engineering
-(encoding, scaling) is handled by feature_engineering.py.
+(encoding, scaling) is handled by preprocessing.py.
 
 Key principle: Preprocessing logic is separate and reusable, so changes
 to how we clean data propagate consistently to all models.

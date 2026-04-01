@@ -39,8 +39,8 @@ from src.config import (
     TEST_SIZE, RANDOM_STATE, N_ESTIMATORS, MAX_DEPTH,
     MODEL_PATH, PIPELINE_PATH, REPORT_PATH
 )
-from src.data_preprocessing import load_data, clean_data, split_data
-from src.feature_engineering import build_preprocessing_pipeline
+from src.data_loader import load_data
+from src.preprocessing import build_preprocessing_pipeline
 from src.train import train_model
 from src.evaluate import evaluate_model
 from src.persistence import save_artifacts
@@ -73,60 +73,33 @@ def main() -> Dict[str, Any]:
         create_directories()
         
         # ====================================================================
-        # STAGE 1: LOAD AND CLEAN DATA
+        # STAGE 1: LOAD DATA
         # ====================================================================
-        logger.info("STAGE 1: Loading and cleaning data")
+        logger.info("STAGE 1: Loading data")
         df = load_data(DATA_PATH)
-        df_clean = clean_data(df)
-        logger.info(f"Data shape after cleaning: {df_clean.shape}")
+        logger.info(f"Data shape: {df.shape}")
         
         # ====================================================================
-        # STAGE 2: SPLIT DATA
+        # STAGE 2: TRAIN MODEL (INCLUDES SPLITTING AND PREPROCESSING)
         # ====================================================================
-        logger.info("STAGE 2: Splitting data into train/test")
-        X_train, X_test, y_train, y_test = split_data(
-            df_clean,
-            target_column=TARGET_COLUMN,
+        logger.info("STAGE 2: Training model")
+        model, pipeline, X_test, y_test = train_model(
+            DATA_PATH,
+            TARGET_COLUMN,
+            CATEGORICAL_COLS,
+            NUMERICAL_COLS,
             test_size=TEST_SIZE,
-            random_state=RANDOM_STATE
-        )
-        
-        # ====================================================================
-        # STAGE 3: BUILD PREPROCESSING PIPELINE (UNFITTED)
-        # ====================================================================
-        logger.info("STAGE 3: Building preprocessing pipeline")
-        pipeline = build_preprocessing_pipeline(CATEGORICAL_COLS, NUMERICAL_COLS)
-        
-        # ====================================================================
-        # STAGE 4: FIT PIPELINE ON TRAINING DATA
-        # ====================================================================
-        logger.info("STAGE 4: Fitting preprocessing pipeline on training data")
-        X_train_processed = pipeline.fit_transform(X_train)
-        logger.info(f"Training data shape after preprocessing: {X_train_processed.shape}")
-        
-        # ====================================================================
-        # STAGE 5: APPLY PIPELINE TO TEST DATA (NO REFITTING)
-        # ====================================================================
-        logger.info("STAGE 5: Applying pipeline to test data")
-        X_test_processed = pipeline.transform(X_test)
-        logger.info(f"Test data shape after preprocessing: {X_test_processed.shape}")
-        
-        # ====================================================================
-        # STAGE 6: TRAIN MODEL
-        # ====================================================================
-        logger.info("STAGE 6: Training model")
-        model = train_model(
-            X_train_processed,
-            y_train,
             random_state=RANDOM_STATE,
             n_estimators=N_ESTIMATORS,
             max_depth=MAX_DEPTH
         )
         
         # ====================================================================
-        # STAGE 7: EVALUATE MODEL
+        # STAGE 3: EVALUATE MODEL
         # ====================================================================
-        logger.info("STAGE 7: Evaluating model on test data")
+        logger.info("STAGE 3: Evaluating model on test data")
+        # Need to preprocess X_test
+        X_test_processed = pipeline.transform(X_test)
         metrics = evaluate_model(model, X_test_processed, y_test)
         
         # Log all metrics
@@ -138,9 +111,9 @@ def main() -> Dict[str, Any]:
         logger.info("-" * 80)
         
         # ====================================================================
-        # STAGE 8: SAVE ARTIFACTS
+        # STAGE 4: SAVE ARTIFACTS
         # ====================================================================
-        logger.info("STAGE 8: Saving trained artifacts")
+        logger.info("STAGE 4: Saving trained artifacts")
         save_artifacts(model, pipeline, MODEL_PATH, PIPELINE_PATH)
         logger.info(f"Model saved to: {MODEL_PATH}")
         logger.info(f"Pipeline saved to: {PIPELINE_PATH}")
