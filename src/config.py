@@ -11,6 +11,16 @@ the codebase, making the system more maintainable and reproducible.
 from typing import List
 
 # ============================================================================
+# PROBLEM TYPE CONFIGURATION
+# ============================================================================
+# This project solves a binary classification problem
+# Problem type: supervised learning - classification - binary
+# Target: Predict whether a ride-sharing request will be completed (1) or not (0)
+PROBLEM_TYPE: str = 'binary_classification'
+POSITIVE_CLASS: int = 1  # Completed ride
+NEGATIVE_CLASS: int = 0  # Not completed ride
+
+# ============================================================================
 # FILE PATHS
 # ============================================================================
 DATA_PATH: str = 'data/raw/ride_data.csv'

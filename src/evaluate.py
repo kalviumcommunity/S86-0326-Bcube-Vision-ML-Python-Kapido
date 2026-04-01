@@ -4,6 +4,13 @@ Model evaluation module for ride-sharing demand/supply prediction.
 This module handles the evaluation stage of the ML pipeline: computing
 performance metrics on held-out test data.
 
+This is a BINARY CLASSIFICATION problem, so we use classification metrics:
+- Accuracy: Overall correctness (can be misleading if imbalanced)
+- Precision: Of predicted completions, what fraction are actually completed?
+- Recall: Of actual completions, what fraction did we correctly identify?
+- F1 Score: Harmonic mean of precision and recall
+- ROC-AUC: Threshold-independent measure of discrimination ability
+
 Key principle: Evaluation is completely separate from training. A model
 can be loaded from disk and evaluated without running training code.
 Changes to evaluation metrics do not affect training or prediction logic.
