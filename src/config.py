@@ -32,19 +32,35 @@ LOG_PATH: str = 'logs/pipeline.log'
 # ============================================================================
 # DATA CONFIGURATION
 # ============================================================================
+# Target definition
 TARGET_COLUMN: str = 'ride_completed'
 
-CATEGORICAL_COLS: List[str] = [
-    'pickup_location',
-    'dropoff_location',
-    'hour_of_day',
-    'day_of_week'
+# Numerical features
+NUMERICAL_FEATURES: List[str] = [
+    'trip_distance',     # Distance of the ride in kilometers
+    'estimated_time'     # Estimated duration in minutes
 ]
 
-NUMERICAL_COLS: List[str] = [
-    'trip_distance',
-    'estimated_time'
+# Categorical features
+CATEGORICAL_FEATURES: List[str] = [
+    'pickup_location',   # Starting location (Downtown, Airport, Suburb, etc.)
+    'dropoff_location',  # Destination location
+    'hour_of_day',       # Hour when ride was requested (0-23)
+    'day_of_week'        # Day of week (Mon, Tue, Wed, etc.)
 ]
+
+# Excluded columns with reasons
+EXCLUDED_COLUMNS: List[str] = [
+    # No ID columns in current dataset, but this would be common
+    # Example: 'ride_id' - identifier, not predictive feature
+]
+
+# Derived feature list (all available features)
+ALL_FEATURES: List[str] = NUMERICAL_FEATURES + CATEGORICAL_FEATURES
+
+# Legacy aliases for backward compatibility
+CATEGORICAL_COLS: List[str] = CATEGORICAL_FEATURES
+NUMERICAL_COLS: List[str] = NUMERICAL_FEATURES
 
 # ============================================================================
 # MACHINE LEARNING HYPERPARAMETERS

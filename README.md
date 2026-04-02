@@ -37,6 +37,98 @@ This project solves a **binary classification** problem in supervised learning.
 - Accuracy alone is misleading due to potential class imbalance
 - Focus on recall to minimize missed failed rides (false negatives are costly)
 
+## Feature and Target Definition
+
+This section documents all features and targets used in the model, following ML best practices for feature clarity and data leakage prevention.
+
+### Target Variable
+
+**Name**: `ride_completed`
+
+**Type**: Binary categorical (discrete)
+
+**Values**: 
+- `1`: Ride completed successfully (positive class)
+- `0`: Ride not completed (negative class)
+
+**Business Meaning**: Whether a ride-sharing request was successfully completed by matching a rider with a driver and fulfilling the journey.
+
+**Why This Target?**
+- Core business metric: Can we predict ride success rates?
+- Enables proactive intervention: Identify at-risk rides before they fail
+- Directly drives platform reliability metrics
+
+### Features Description
+
+All features are available at **prediction time** (when a ride is first requested), ensuring no leakage or future information is used.
+
+#### Numerical Features
+
+| Feature | Description | Type | Range | Business Logic |
+|---------|-------------|------|-------|-----------------|
+| `trip_distance` | Distance of the ride in kilometers | Float | > 0 | Affects driver availability and rider wait times |
+| `estimated_time` | Estimated trip duration in minutes | Float | > 0 | Affects driver acceptance likelihood |
+
+**Available at Prediction Time?** ✓ YES - Both estimated at request time from route planning.
+
+#### Categorical Features
+
+| Feature | Description | Type | Example Values | Business Logic |
+|---------|-------------|------|-----------------|-----------------|
+| `pickup_location` | Starting location zone | String | Downtown, Airport, Suburb | Affects driver supply and demand in that area |
+| `dropoff_location` | Destination location zone | String | Downtown, Airport, Suburb | Affects overall trip feasibility |
+| `hour_of_day` | Hour when ride was requested | String | Mon, Tue, Wed, Thu, Fri, Sat, Sun | Peak times have different completion rates |
+| `day_of_week` | Day of week (0-23) | String | 8, 15, 22, etc. | Time of day affects driver behavior patterns |
+
+**Available at Prediction Time?** ✓ YES - All known at request time.
+
+### Excluded Columns
+
+**Current Dataset**: No identifier columns present.
+
+**Pattern for Future Data**:
+- `ride_id`, `user_id`, `driver_id`: Identifiers that cannot be predictive
+- `timestamp`: Extracted into hour_of_day and day_of_week
+- `user_rating`: Subject to future data leakage (unknown at request time)
+- `surge_pricing`: May be endogenous (influenced by ride_completed)
+
+### Feature Summary
+
+```python
+# Configuration in src/config.py
+TARGET_COLUMN = 'ride_completed'
+
+NUMERICAL_FEATURES = ['trip_distance', 'estimated_time']              # 2 features
+CATEGORICAL_FEATURES = ['pickup_location', 'dropoff_location',       # 4 features
+                        'hour_of_day', 'day_of_week']
+
+EXCLUDED_COLUMNS = []  # No identifiers in current dataset
+
+ALL_FEATURES = NUMERICAL_FEATURES + CATEGORICAL_FEATURES              # Total: 6 features
+```
+
+### Data Leakage Prevention
+
+✓ **No Target Leakage**: Target (`ride_completed`) is never in feature list
+✓ **No Temporal Leakage**: All features are available at request time
+✓ **No Identifier Leakage**: No direct identifiers used as features
+✓ **Separated Pipelines**: Training and prediction use same preprocessing but different data splits
+
+### Feature Engineering
+
+The raw features are transformed before modeling:
+
+**Numerical Features**:
+- Handled by `StandardScaler()` in preprocessing pipeline
+- Standardized to mean=0, std=1 for algorithm stability
+
+**Categorical Features**:
+- Handled by `OneHotEncoder()` in preprocessing pipeline
+- Creates binary columns for each category value
+- Handles unseen categories in production
+
+**Transformation Source**: `src/feature_engineering.py` builds the preprocessing pipeline without fitting (fit happens on training data only during `train.py`).
+
 ## Directory Structure
 
 ```
