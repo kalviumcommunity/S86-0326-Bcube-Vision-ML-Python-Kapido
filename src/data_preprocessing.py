@@ -18,6 +18,11 @@ from typing import Tuple
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
+try:
+    from config import TARGET_COLUMN, ALL_FEATURES, EXCLUDED_COLUMNS
+except ImportError:
+    from .config import TARGET_COLUMN, ALL_FEATURES, EXCLUDED_COLUMNS
+
 # Create logger for this module
 logger = logging.getLogger(__name__)
 
@@ -147,4 +152,60 @@ def split_data(
     logger.info(f"Split complete: {len(X_train)} train samples, {len(X_test)} test samples")
     
     return X_train, X_test, y_train, y_test
+
+
+def separate_features_and_target(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series]:
+    """
+    Separate features and target variable from DataFrame.
+    
+    This function performs critical validation:
+    - Ensures target column exists
+    - Ensures target is not in feature list (prevents data leakage)
+    - Selects only configured features
+    - Returns properly separated X and y
+    
+    Args:
+        df: Cleaned DataFrame containing all columns.
+        
+    Returns:
+        Tuple of (X, y) where:
+        - X: DataFrame containing only features defined in ALL_FEATURES
+        - y: Series containing target variable
+        
+    Raises:
+        ValueError: If target not found, target in features, or features missing.
+        AssertionError: If validation checks fail.
+    """
+    logger.info("Separating features and target variables")
+    
+    # Validate target column exists
+    assert TARGET_COLUMN in df.columns, \
+        f"Target '{TARGET_COLUMN}' not found in DataFrame. Available columns: {list(df.columns)}"
+    logger.debug(f"✓ Target column '{TARGET_COLUMN}' found")
+    
+    # Validate target is not leaked into features
+    assert TARGET_COLUMN not in ALL_FEATURES, \
+        "CRITICAL: Target leaked into features! This causes data leakage."
+    logger.debug("✓ Target not in feature list (no data leakage)")
+    
+    # Validate all features are available
+    missing_features = set(ALL_FEATURES) - set(df.columns)
+    assert len(missing_features) == 0, \
+        f"Missing features: {missing_features}. Available: {list(df.columns)}"
+    logger.debug(f"✓ All {len(ALL_FEATURES)} features available in DataFrame")
+    
+    # Separate features and target
+    X = df[ALL_FEATURES].copy()
+    y = df[TARGET_COLUMN].copy()
+    
+    logger.info(f"Feature/target separation complete:")
+    logger.info(f"  Features shape: {X.shape}")
+    logger.info(f"  Target shape: {y.shape}")
+    logger.info(f"  Target distribution:\n{y.value_counts(normalize=True)}")
+    
+    # Additional validation on separation
+    assert X.shape[0] == y.shape[0], "Feature and target have different lengths"
+    assert X.shape[1] == len(ALL_FEATURES), f"Expected {len(ALL_FEATURES)} features, got {X.shape[1]}"
+    
+    return X, y
 
