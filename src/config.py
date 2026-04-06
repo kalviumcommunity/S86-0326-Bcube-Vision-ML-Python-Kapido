@@ -33,7 +33,7 @@ LOG_PATH: str = 'logs/pipeline.log'
 # DATA CONFIGURATION
 # ============================================================================
 # Target definition
-TARGET_COLUMN: str = 'ride_completed'
+TARGET_COLUMN: str = 'ride_completed'  # 0 = not completed, 1 = completed   
 
 # Numerical features
 NUMERICAL_FEATURES: List[str] = [
