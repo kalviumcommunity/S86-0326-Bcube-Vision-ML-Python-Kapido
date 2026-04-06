@@ -8,5 +8,7 @@ joblib==1.5.3
 # Test dependencies (also pinned)
 pytest==9.0.2
 pytest-cov==7.1.0
+matplotlib==3.8.1
+seaborn==0.13.2
 
 
