@@ -37,16 +37,16 @@ TARGET_COLUMN: str = 'ride_completed'  # 0 = not completed, 1 = completed
 
 # Numerical features
 NUMERICAL_FEATURES: List[str] = [
-    'trip_distance',     # Distance of the ride in kilometers
-    'estimated_time'     # Estimated duration in minutes
+    'trip_distance',     # Continuous distance in kilometers
+    'estimated_time'     # Continuous estimated duration in minutes
 ]
 
 # Categorical features
 CATEGORICAL_FEATURES: List[str] = [
-    'pickup_location',   # Starting location (Downtown, Airport, Suburb, etc.)
-    'dropoff_location',  # Destination location
-    'hour_of_day',       # Hour when ride was requested (0-23)
-    'day_of_week'        # Day of week (Mon, Tue, Wed, etc.)
+    'pickup_location',   # Nominal starting location (Downtown, Airport, Suburb, etc.)
+    'dropoff_location',  # Nominal destination location
+    'hour_of_day',       # Discrete hour bucket (0-23), treated categorically in this pipeline
+    'day_of_week'        # Nominal day label (Mon, Tue, Wed, etc.)
 ]
 
 # Excluded columns with reasons
