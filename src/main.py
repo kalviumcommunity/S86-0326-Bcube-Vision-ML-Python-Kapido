@@ -37,7 +37,8 @@ logger = logging.getLogger(__name__)
 from src.config import (
     DATA_PATH, TARGET_COLUMN, CATEGORICAL_COLS, NUMERICAL_COLS,
     TEST_SIZE, RANDOM_STATE, N_ESTIMATORS, MAX_DEPTH,
-    MODEL_PATH, PIPELINE_PATH, REPORT_PATH
+    MODEL_PATH, PIPELINE_PATH, REPORT_PATH,
+    VERIFY_SCALING, SCALING_MEAN_TOLERANCE, SCALING_STD_TOLERANCE
 )
 from src.data_loader import load_data
 from src.preprocessing import build_preprocessing_pipeline
@@ -83,7 +84,7 @@ def main() -> Dict[str, Any]:
         # STAGE 2: TRAIN MODEL (INCLUDES SPLITTING AND PREPROCESSING)
         # ====================================================================
         logger.info("STAGE 2: Training model")
-        model, pipeline, X_test, y_test = train_model(
+        model, pipeline, X_test, y_test, verification_stats = train_model(
             DATA_PATH,
             TARGET_COLUMN,
             CATEGORICAL_COLS,
@@ -91,8 +92,15 @@ def main() -> Dict[str, Any]:
             test_size=TEST_SIZE,
             random_state=RANDOM_STATE,
             n_estimators=N_ESTIMATORS,
-            max_depth=MAX_DEPTH
+            max_depth=MAX_DEPTH,
+            verify_scaling_enabled=VERIFY_SCALING,
+            scaling_mean_tolerance=SCALING_MEAN_TOLERANCE,
+            scaling_std_tolerance=SCALING_STD_TOLERANCE
         )
+        
+        # Log scaling verification summary (if available)
+        if verification_stats.get('scaling_valid') is not None:
+            logger.info("[OK] Scaling verification completed (see above for details)")
         
         # ====================================================================
         # STAGE 3: EVALUATE MODEL
@@ -130,8 +138,8 @@ def main() -> Dict[str, Any]:
             'metrics': metrics,
             'model_path': MODEL_PATH,
             'pipeline_path': PIPELINE_PATH,
-            'samples_trained': len(X_train),
-            'samples_tested': len(X_test)
+            'samples_tested': len(X_test),
+            'scaling_verification': verification_stats.get('scaling_valid')
         }
     
     except FileNotFoundError as e:
