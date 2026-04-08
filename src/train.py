@@ -24,7 +24,10 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
 from .data_loader import load_data
-from .preprocessing import build_preprocessing_pipeline, verify_scaling, log_scaling_verification
+from .preprocessing import (
+    build_preprocessing_pipeline, verify_scaling, log_scaling_verification,
+    verify_normalization, log_normalization_verification
+)
 
 # Create logger for this module
 logger = logging.getLogger(__name__)
@@ -43,14 +46,17 @@ def train_model(
     min_samples_leaf: int = 2,
     verify_scaling_enabled: bool = True,
     scaling_mean_tolerance: float = 0.1,
-    scaling_std_tolerance: float = 0.2
+    scaling_std_tolerance: float = 0.2,
+    verify_normalization_enabled: bool = False,
+    normalization_min_tolerance: float = 0.01,
+    normalization_max_tolerance: float = 0.01
 ) -> Tuple[RandomForestClassifier, object, np.ndarray, np.ndarray, Dict[str, Any]]:
     """
     Train a Random Forest classifier on ride-sharing data.
     
     This function handles the complete training workflow: loading, splitting,
     preprocessing, and model fitting. Optionally verifies that numerical
-    features are correctly scaled after preprocessing.
+    features are correctly scaled (StandardScaler) or normalized (MinMaxScaler).
     
     Args:
         data_path: Path to the CSV data file.
@@ -66,6 +72,9 @@ def train_model(
         verify_scaling_enabled: Whether to verify StandardScaler results (default True).
         scaling_mean_tolerance: Acceptable deviation from mean=0 (default 0.1).
         scaling_std_tolerance: Acceptable deviation from std=1 (default 0.2).
+        verify_normalization_enabled: Whether to verify MinMaxScaler results (default False).
+        normalization_min_tolerance: Tolerance for min values near 0 (default 0.01).
+        normalization_max_tolerance: Tolerance for max values near 1.0 (default 0.01).
         
     Returns:
         Tuple of:
@@ -73,7 +82,7 @@ def train_model(
         - fitted_pipeline: Fitted preprocessing pipeline
         - X_test: Unprocessed test features (for later evaluation)
         - y_test: Test target values
-        - verification_stats: Dict with 'scaling_valid' and 'scaling_results' keys
+        - verification_stats: Dict with scaling and normalization verification results
         
     Raises:
         ValueError: If inputs are invalid.
@@ -82,7 +91,9 @@ def train_model(
     # Initialize verification stats
     verification_stats = {
         'scaling_valid': None,
-        'scaling_results': {}
+        'scaling_results': {},
+        'normalization_valid': None,
+        'normalization_results': {}
     }
     
     # Load data
@@ -137,6 +148,36 @@ def train_model(
         except Exception as e:
             logger.warning(f"Scaling verification failed: {e}")
             verification_stats['scaling_valid'] = None
+    
+    # Verify normalization (if enabled) - alternative to scaling verification
+    if verify_normalization_enabled and numerical_cols:
+        try:
+            # Get the starting index of numerical features in the processed data
+            num_categorical_features = 0
+            cat_transformer = pipeline.named_transformers_.get('cat')
+            if cat_transformer is not None:
+                num_categorical_features = X_train_processed.shape[1] - len(numerical_cols)
+            
+            # Numerical features should be at the end of the processed array
+            numerical_indices = list(range(num_categorical_features, X_train_processed.shape[1]))
+            
+            if numerical_indices:
+                # Verify normalization on training data
+                normalization_results = verify_normalization(
+                    X_train_processed,
+                    numerical_indices,
+                    min_tolerance=normalization_min_tolerance,
+                    max_tolerance=normalization_max_tolerance
+                )
+                
+                # Log verification results
+                normalization_valid = log_normalization_verification(normalization_results, numerical_cols)
+                
+                verification_stats['normalization_valid'] = normalization_valid
+                verification_stats['normalization_results'] = normalization_results
+        except Exception as e:
+            logger.warning(f"Normalization verification failed: {e}")
+            verification_stats['normalization_valid'] = None
     
     # Train model
     model = RandomForestClassifier(

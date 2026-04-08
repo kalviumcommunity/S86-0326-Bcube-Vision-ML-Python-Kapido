@@ -38,7 +38,8 @@ from src.config import (
     DATA_PATH, TARGET_COLUMN, CATEGORICAL_COLS, NUMERICAL_COLS,
     TEST_SIZE, RANDOM_STATE, N_ESTIMATORS, MAX_DEPTH,
     MODEL_PATH, PIPELINE_PATH, REPORT_PATH,
-    VERIFY_SCALING, SCALING_MEAN_TOLERANCE, SCALING_STD_TOLERANCE
+    VERIFY_SCALING, SCALING_MEAN_TOLERANCE, SCALING_STD_TOLERANCE,
+    VERIFY_NORMALIZATION, NORMALIZATION_MIN_TOLERANCE, NORMALIZATION_MAX_TOLERANCE
 )
 from src.data_loader import load_data
 from src.preprocessing import build_preprocessing_pipeline
@@ -95,12 +96,18 @@ def main() -> Dict[str, Any]:
             max_depth=MAX_DEPTH,
             verify_scaling_enabled=VERIFY_SCALING,
             scaling_mean_tolerance=SCALING_MEAN_TOLERANCE,
-            scaling_std_tolerance=SCALING_STD_TOLERANCE
+            scaling_std_tolerance=SCALING_STD_TOLERANCE,
+            verify_normalization_enabled=VERIFY_NORMALIZATION,
+            normalization_min_tolerance=NORMALIZATION_MIN_TOLERANCE,
+            normalization_max_tolerance=NORMALIZATION_MAX_TOLERANCE
         )
         
-        # Log scaling verification summary (if available)
+        # Log verification summaries (if available)
         if verification_stats.get('scaling_valid') is not None:
             logger.info("[OK] Scaling verification completed (see above for details)")
+        
+        if verification_stats.get('normalization_valid') is not None:
+            logger.info("[OK] Normalization verification completed (see above for details)")
         
         # ====================================================================
         # STAGE 3: EVALUATE MODEL
@@ -139,7 +146,8 @@ def main() -> Dict[str, Any]:
             'model_path': MODEL_PATH,
             'pipeline_path': PIPELINE_PATH,
             'samples_tested': len(X_test),
-            'scaling_verification': verification_stats.get('scaling_valid')
+            'scaling_verification': verification_stats.get('scaling_valid'),
+            'normalization_verification': verification_stats.get('normalization_valid')
         }
     
     except FileNotFoundError as e:

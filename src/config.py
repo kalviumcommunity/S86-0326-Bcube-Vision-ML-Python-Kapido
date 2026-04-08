@@ -82,7 +82,7 @@ MIN_SAMPLES_LEAF: int = 2
 # ============================================================================
 # SCALING STRATEGY FOR NUMERICAL FEATURES:
 #
-# StandardScaler is applied to numerical features only. This ensures that:
+# This project uses StandardScaler for numerical features:
 # 1. All numerical features are on a comparable scale (mean ≈ 0, std ≈ 1)
 # 2. Gradient-based optimization remains stable during model training
 # 3. Distance-based metrics are not biased toward larger-magnitude features
@@ -91,6 +91,12 @@ MIN_SAMPLES_LEAF: int = 2
 # Random Forest is tree-based and scale-invariant—it splits on feature
 # thresholds regardless of numeric magnitude. Scaling is optional but does
 # not harm. It is applied for pipeline consistency and numerical stability.
+#
+# For reference: MinMaxScaler (bounds features to [0,1]) is useful for:
+# - Neural networks (bounded activations)
+# - Distance-based models (kNN, k-Means, SVM with RBF kernel)
+# - Algorithms sensitive to feature magnitude (PCA, anomaly detection)
+# MinMaxScaler is avoided here due to outlier sensitivity.
 #
 # DATA LEAKAGE PREVENTION:
 # Critical workflow: Scale AFTER splitting, not before.
@@ -105,9 +111,16 @@ MIN_SAMPLES_LEAF: int = 2
 # Scaling verification: Enable/disable verification output
 VERIFY_SCALING: bool = True
 
-# Tolerance thresholds for scaling verification
+# Tolerance thresholds for StandardScaler verification
 SCALING_MEAN_TOLERANCE: float = 0.1    # Accept mean within ±0.1 (ideally ≈ 0)
 SCALING_STD_TOLERANCE: float = 0.2     # Accept std within ±0.2 from 1.0 (ideally ≈ 1)
+
+# Normalization verification: Enable/disable verification output for MinMaxScaler
+VERIFY_NORMALIZATION: bool = False
+
+# Tolerance thresholds for MinMaxScaler verification
+NORMALIZATION_MIN_TOLERANCE: float = 0.01  # Accept min values near 0
+NORMALIZATION_MAX_TOLERANCE: float = 0.01  # Accept max values near 1
 
 # ============================================================================
 # LOGGING CONFIGURATION
