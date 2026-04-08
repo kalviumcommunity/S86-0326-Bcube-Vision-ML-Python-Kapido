@@ -78,6 +78,38 @@ MIN_SAMPLES_SPLIT: int = 5
 MIN_SAMPLES_LEAF: int = 2
 
 # ============================================================================
+# FEATURE SCALING CONFIGURATION
+# ============================================================================
+# SCALING STRATEGY FOR NUMERICAL FEATURES:
+#
+# StandardScaler is applied to numerical features only. This ensures that:
+# 1. All numerical features are on a comparable scale (mean ≈ 0, std ≈ 1)
+# 2. Gradient-based optimization remains stable during model training
+# 3. Distance-based metrics are not biased toward larger-magnitude features
+#
+# WHY NOT RANDOM FOREST?
+# Random Forest is tree-based and scale-invariant—it splits on feature
+# thresholds regardless of numeric magnitude. Scaling is optional but does
+# not harm. It is applied for pipeline consistency and numerical stability.
+#
+# DATA LEAKAGE PREVENTION:
+# Critical workflow: Scale AFTER splitting, not before.
+# 1. Split data into train/test FIRST (using full dataset statistics is leakage)
+# 2. Fit StandardScaler on training data ONLY
+# 3. Transform both train and test using the fitted scaler
+# 4. Save the fitted scaler for inference on new data
+#
+# This is enforced in preprocessing.py's build_preprocessing_pipeline() and
+# train.py's train_model() which both follow the correct sequence.
+
+# Scaling verification: Enable/disable verification output
+VERIFY_SCALING: bool = True
+
+# Tolerance thresholds for scaling verification
+SCALING_MEAN_TOLERANCE: float = 0.1    # Accept mean within ±0.1 (ideally ≈ 0)
+SCALING_STD_TOLERANCE: float = 0.2     # Accept std within ±0.2 from 1.0 (ideally ≈ 1)
+
+# ============================================================================
 # LOGGING CONFIGURATION
 # ============================================================================
 LOG_LEVEL: str = 'INFO'
