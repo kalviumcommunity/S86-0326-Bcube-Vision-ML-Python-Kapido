@@ -77,6 +77,9 @@ MAX_DEPTH: int = 10
 MIN_SAMPLES_SPLIT: int = 5
 MIN_SAMPLES_LEAF: int = 2
 
+# Baseline configuration
+BASELINE_STRATEGY: str = 'most_frequent'
+
 # ============================================================================
 # FEATURE SCALING CONFIGURATION
 # ============================================================================

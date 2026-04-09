@@ -19,6 +19,7 @@ the entire pipeline stops and an error is logged.
 import logging
 import sys
 import os
+import json
 from typing import Dict, Any
 
 # Configure logging at module level
@@ -108,6 +109,16 @@ def main() -> Dict[str, Any]:
         
         if verification_stats.get('normalization_valid') is not None:
             logger.info("[OK] Normalization verification completed (see above for details)")
+
+        baseline_metrics = verification_stats.get('baseline_metrics', {})
+        if baseline_metrics:
+            logger.info("STAGE 2B: Baseline model evaluation")
+            logger.info("-" * 80)
+            logger.info("BASELINE METRICS")
+            logger.info("-" * 80)
+            for metric_name, metric_value in baseline_metrics.items():
+                logger.info(f"{metric_name.upper():15s}: {metric_value:.4f}")
+            logger.info("-" * 80)
         
         # ====================================================================
         # STAGE 3: EVALUATE MODEL
@@ -132,6 +143,21 @@ def main() -> Dict[str, Any]:
         save_artifacts(model, pipeline, MODEL_PATH, PIPELINE_PATH)
         logger.info(f"Model saved to: {MODEL_PATH}")
         logger.info(f"Pipeline saved to: {PIPELINE_PATH}")
+
+        report = {
+            'metrics': metrics,
+            'baseline_metrics': baseline_metrics,
+            'improvement': {
+                metric_name: metrics.get(metric_name, float('nan')) - baseline_metrics.get(metric_name, float('nan'))
+                for metric_name in baseline_metrics.keys()
+            },
+            'samples_tested': len(X_test),
+        }
+
+        os.makedirs(os.path.dirname(REPORT_PATH), exist_ok=True)
+        with open(REPORT_PATH, 'w', encoding='utf-8') as report_file:
+            json.dump(report, report_file, indent=2)
+        logger.info(f"Evaluation report saved to: {REPORT_PATH}")
         
         # ====================================================================
         # PIPELINE COMPLETE
@@ -143,6 +169,7 @@ def main() -> Dict[str, Any]:
         return {
             'status': 'success',
             'metrics': metrics,
+            'baseline_metrics': baseline_metrics,
             'model_path': MODEL_PATH,
             'pipeline_path': PIPELINE_PATH,
             'samples_tested': len(X_test),
