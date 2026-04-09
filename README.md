@@ -36,6 +36,7 @@ This project solves a **binary classification** problem in supervised learning.
 - Primary metrics: Precision, Recall, F1-Score, ROC-AUC
 - Accuracy alone is misleading due to potential class imbalance
 - Focus on recall to minimize missed failed rides (false negatives are costly)
+- Baseline comparison: a majority-class DummyClassifier is evaluated on the same held-out split and written to `reports/metrics.json` alongside the model metrics
 
 ## Feature and Target Definition
 
