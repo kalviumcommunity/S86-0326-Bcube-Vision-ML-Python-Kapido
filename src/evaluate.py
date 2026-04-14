@@ -83,14 +83,18 @@ def evaluate_model(
         # Compute metrics
         metrics = {
             'accuracy': accuracy_score(y_test, predictions),
-            'precision': precision_score(y_test, predictions),
-            'recall': recall_score(y_test, predictions),
-            'f1': f1_score(y_test, predictions),
+            'precision': precision_score(y_test, predictions, zero_division=0),
+            'recall': recall_score(y_test, predictions, zero_division=0),
+            'f1': f1_score(y_test, predictions, zero_division=0),
         }
         
         # Add ROC-AUC if probabilities available
         if probabilities is not None:
-            metrics['roc_auc'] = roc_auc_score(y_test, probabilities)
+            try:
+                metrics['roc_auc'] = roc_auc_score(y_test, probabilities)
+            except ValueError:
+                metrics['roc_auc'] = float('nan')
+                logger.warning("ROC-AUC could not be computed; using NaN")
         else:
             metrics['roc_auc'] = float('nan')
             logger.warning("Model does not have predict_proba; ROC-AUC set to NaN")

@@ -23,6 +23,8 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
+from .baselines import evaluate_classification_baseline
+from .config import BASELINE_STRATEGY
 from .data_loader import load_data
 from .preprocessing import (
     build_preprocessing_pipeline, verify_scaling, log_scaling_verification,
@@ -44,6 +46,7 @@ def train_model(
     max_depth: int = 10,
     min_samples_split: int = 5,
     min_samples_leaf: int = 2,
+    baseline_strategy: str = BASELINE_STRATEGY,
     verify_scaling_enabled: bool = True,
     scaling_mean_tolerance: float = 0.1,
     scaling_std_tolerance: float = 0.2,
@@ -93,7 +96,9 @@ def train_model(
         'scaling_valid': None,
         'scaling_results': {},
         'normalization_valid': None,
-        'normalization_results': {}
+        'normalization_results': {},
+        'baseline_metrics': {},
+        'baseline_strategy': baseline_strategy,
     }
     
     # Load data
@@ -192,6 +197,16 @@ def train_model(
     model.fit(X_train_processed, y_train)
     
     logger.info(f"Model trained. Training accuracy: {model.score(X_train_processed, y_train):.3f}")
+
+    # Fit and score a trivial baseline on the same split for honest comparison.
+    verification_stats['baseline_metrics'] = evaluate_classification_baseline(
+        X_train_processed,
+        y_train,
+        X_test_processed,
+        y_test,
+        strategy=baseline_strategy,
+        random_state=random_state
+    )
     
     return model, pipeline, X_test, y_test, verification_stats
 
