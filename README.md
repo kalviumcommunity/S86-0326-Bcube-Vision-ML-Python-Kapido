@@ -62,6 +62,16 @@ This section documents all features and targets used in the model, following ML 
 
 All features are available at **prediction time** (when a ride is first requested), ensuring no leakage or future information is used.
 
+### Feature Type Selection
+
+This project separates features by how the model should interpret them:
+
+- **Numerical features** represent measurable quantities with meaningful magnitude.
+- **Categorical features** represent labels or buckets that should be encoded, not scaled.
+- **Hour of day** is stored as a discrete bucket and treated categorically in this pipeline.
+
+This separation keeps preprocessing consistent and prevents artificial ordering or loss of magnitude.
+
 #### Numerical Features
 
 | Feature | Description | Type | Range | Business Logic |
@@ -77,8 +87,8 @@ All features are available at **prediction time** (when a ride is first requeste
 |---------|-------------|------|-----------------|-----------------|
 | `pickup_location` | Starting location zone | String | Downtown, Airport, Suburb | Affects driver supply and demand in that area |
 | `dropoff_location` | Destination location zone | String | Downtown, Airport, Suburb | Affects overall trip feasibility |
-| `hour_of_day` | Hour when ride was requested | String | Mon, Tue, Wed, Thu, Fri, Sat, Sun | Peak times have different completion rates |
-| `day_of_week` | Day of week (0-23) | String | 8, 15, 22, etc. | Time of day affects driver behavior patterns |
+| `hour_of_day` | Hour bucket when ride was requested | Integer bucket | 8, 14, 20 | Treated as a categorical bucket in this pipeline |
+| `day_of_week` | Day of week | String | Mon, Tue, Wed, Thu, Fri, Sat, Sun | Weekly demand patterns affect completion rates |
 
 **Available at Prediction Time?** ✓ YES - All known at request time.
 
